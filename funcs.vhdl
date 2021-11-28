@@ -5,21 +5,13 @@ use ieee.std_logic_1164.all, ieee.numeric_std.all,
 package funcs is 
 function decode(inst:byte) return instruction;
 
---procedure PC_logic(inst:in instruction;
---                   hcounter, tcounter: inout integer;
---                   hstack, tstack: in std_ulogic_vector;
---                   dat :in data;      
---                   tpush,tpop,hpush,hpop:out std_ulogic;
---                   search:inout std_logic;
---                   PC:inout PC_type);
-
 function add(vect:std_ulogic_vector;int:integer)
 	return std_ulogic_vector;
 procedure rstlogic(signal vect:inout std_ulogic_vector);
 
 procedure read_bf_file(file_in: in string;
                        signal ret:out word_array;
-											 signal inst_no: out integer);
+                       signal inst_no: out integer);
 	--an error from here probably means you don't have enough instructions
 	--or you are putting malformed stuff in
 	--ret is the contents of the file 
@@ -45,72 +37,6 @@ begin
 		when others => return NA;
 	end case;
 end decode;
-
-----Control the Program counter
---procedure PC_logic(inst:in instruction;
---                   hcounter, tcounter: inout integer;
---                   hstack, tstack: in std_ulogic_vector;
---                   dat :in data;      
---                   tpush,tpop,hpush,hpop:out std_ulogic;
---                   search:inout std_logic;
---                   PC:inout PC_type)is
-----h & t counter are for counting number of heads & tails in a
----- 'search' block (unkown jump to ])
-----h & t stack are stacks for storing locations of [ and ]
----- for quick jumping too and from (maybe make funciton to 
----- deal when they are full? slow search backwards)
----- dat is for data currently being read
----- t & h pop and push are for popping and pushing into 
----- the above stacks
---begin
---	case inst is 
---	when head=>
---		--searching for matching ], skip past [
---		if search = '1' then
---			PC:=add(PC,1);
---			hcounter := hcounter + 1;
---		
---		elsif signed(dat) = 0 then --jump needed
---			if unsigned(hstack) < unsigned(tstack) then
---			--find if matching ] is on stack
---			--Given the way ] is searched for only the next
---			-- ] may be on the stack at any given time
---				PC := add(tstack,1);
---			end if;
---		else --no jump needed
---			PC := add(PC,1);
---			if to_integer(unsigned(PC))
---				 /= to_integer(unsigned(hstack)) then
---				hpush := '1';
---			end if;
---		end if;
---	when tail=>
---		if search = '1' then
---			PC := add(PC,1);
---			--search complete when brackets match
---			if hcounter = tcounter then
---				search:= '0';
---				hcounter:= 0;
---				tcounter:= 0;
---			else --brackets don't match
---				tcounter := tcounter + 1;
---			end if;
---		else --Will always jump back to last [ 
---			PC := hstack;
---			--if first jump from here, store jump location
---			if tstack /= PC then
---				tstack := PC;
---			end if;
---		end if;
---	when others =>
---		PC := add(PC,1);
---		tpush := '0';
---		tpop  := '0';
---		hpush := '0';
---		hpop  := '0';
---	end case;
---end PC_logic;             
-
 
 
 --This *was* all unsigned, now changed
