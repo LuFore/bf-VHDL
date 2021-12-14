@@ -52,7 +52,6 @@ signal tcounter    : std_ulogic_vector(31 downto 0);
  begin
 	process(clk)
 		variable inst : instruction;
-		constant cdata: word := data_memory(to_integer(unsigned(data_ptr)));
 	begin
 	if rst = reset_polarity then
 		rstlogic(hsptr);
