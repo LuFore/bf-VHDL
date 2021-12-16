@@ -43,9 +43,10 @@ signal search      : std_ulogic ;
 signal headstack   : loopstack;
 signal hsptr       : loopstackptr;
 signal tail_ptr    : PC_type; --location of end of current loop
-
+signal rst_ptr     : PC_type; --ptr to furthest distance in array achived
+	
 --Counter for searching for [], to check they match
---Clean this up to use spair address space
+--Clean this up to use spare address space instead of being a fixed 32 bit
 signal hcounter 	 : std_ulogic_vector(31 downto 0);
 signal tcounter    : std_ulogic_vector(31 downto 0);
 
@@ -62,11 +63,11 @@ signal tcounter    : std_ulogic_vector(31 downto 0);
 		rstlogic(PC);
 		rstlogic(data_ptr);
 		rstlogic(tcounter);
+		rstlogic(rst_ptr);
 		chan_out <= (others => '0');
 		search <= '0';
-		for i in data_memory'range loop
-			data_memory(i) <= (others => '0');
-		end loop;
+		data_memory(0) <= (others => '0'); --reset first element of array
+		
 	elsif rising_edge(clk) and stall = '0' then
 		--decode instruction
 		inst := decode(inst_memory(to_integer(unsigned(PC))));
@@ -75,8 +76,14 @@ signal tcounter    : std_ulogic_vector(31 downto 0);
 --		integer'image(to_integer(unsigned(inst_memory(to_integer(unsigned(PC))))))
 --		& " Decoded Instruction: " & 
 --		instruction'image(inst);
-		PC <= add(PC,1); -- increment PC
+		PC <= add(PC,1); -- increment PC, this may be overwritten
 		active_output <= '0'; --no output by defeault 
+
+		if  data_ptr = rst_ptr then --find if next element has been written yet 
+			--set next element to 0
+			data_memory(to_integer(unsigned(rst_ptr))+1) <= (others => '0');
+			rst_ptr <= std_ulogic_vector(unsigned(rst_ptr)+1);
+		end if;
 		if search = '0' then 
 			case inst is 
 			--malformed instruction
